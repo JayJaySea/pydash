@@ -16,6 +16,9 @@ class Clock(LabelButton):
     def __init__(self, color):
         super().__init__(self.getDateTime(), color, "medium")
         self.setMaximumHeight(30)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.updateDateTime)
+        self.timer.start(1000)
 
     def getDateTime(self):
         return datetime.now().strftime(" %H:%M   %d-%m ")
