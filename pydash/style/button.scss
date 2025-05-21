@@ -1,0 +1,104 @@
+#LabelButton {
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    padding: 2px;
+    background-color: $background-dark;
+}
+
+#LabelButton[color=green] {
+    border-color: $green;
+}
+
+#LabelButton[color=yellow] {
+    border-color: $yellow;
+}
+
+#LabelButtonIndicator {
+    font-family: "Orbitron", Monospace, sans-serif;
+    font-weight: normal;
+    color: $foreground;
+    border-style: solid;
+    padding: 0px;
+    background-color: $background-dark;
+}
+
+#LabelButtonIndicator[small=true] {
+    font-size: 10px;
+}
+
+#LabelButtonIndicator[medium=true] {
+    font-size: 18px;
+    border-radius: 2px;
+}
+
+#LabelButtonIndicator[large=true] {
+    font-size: 30px;
+}
+
+#LabelButtonIndicator[hover=true] {
+    background-color: $background;
+}
+
+#LabelButtonIndicator[color=green] {
+    background-color: $green;
+    color: $background;
+}
+
+#LabelButtonIndicator[color=yellow] {
+    background-color: $yellow;
+    color: $background;
+}
+
+#LabelButtonIndicator[color=red] {
+    background-color: $red;
+    color: $background;
+}
+
+#WorkspaceButtonIndicator {
+    font-family: "Orbitron", Monospace, sans-serif;
+    font-weight: normal;
+    color: $foreground-dim;
+    border-style: solid;
+    padding: 0px;
+    background-color: $background-dark;
+}
+
+#WorkspaceButtonIndicator[small=true] {
+    font-size: 10px;
+}
+
+#WorkspaceButtonIndicator[medium=true] {
+    font-size: 18px;
+    border-radius: 2px;
+}
+
+#WorkspaceButtonIndicator[large=true] {
+    font-size: 30px;
+}
+
+#WorkspaceButtonIndicator[hover=true] {
+    background-color: $background;
+}
+
+#WorkspaceButtonIndicator[occupied=true] {
+    color: $foreground;
+}
+
+#WorkspaceButtonIndicator[color=green] {
+    background-color: $green;
+    color: $background;
+}
+
+#IconButton {
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    padding: 2px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+#IconButton[color=red] {
+    border-color: $red;
+}

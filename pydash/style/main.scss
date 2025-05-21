@@ -1,0 +1,17 @@
+@import "colors";
+@import "dock";
+@import "button";
+
+QWidget {
+    font-size: 30px;
+    font-family: "Orbitron", Monospace, sans-serif;
+    color: $foreground;
+    border: none;
+    margin: 0px;
+    padding: 0px;
+}
+
+QStackedWidget {
+    background-color: $background;
+}
+
