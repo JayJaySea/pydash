@@ -33,7 +33,7 @@ setup(
     ],
     entry_points={
         'gui_scripts': [
-            'PyDash = pydash.app:main',
+            'pydash = pydash.app:main',
         ],
     },
 )
