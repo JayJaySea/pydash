@@ -9,7 +9,16 @@ class AwesomeWM(QObject):
     workspace_changed = Signal(str)
     occupied_workspaces_status = Signal(list)
 
+    def __new__(cls):
+        if not hasattr(cls, 'instance'):
+            cls.instance = super(AwesomeWM, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self):
+        if getattr(self, '_initialized', False):
+            return
+        self._initialized = True
+
         super().__init__()
         socket_path = "/tmp/awesome.sock"
 
