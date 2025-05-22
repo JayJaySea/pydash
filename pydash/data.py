@@ -1,5 +1,6 @@
 from pathlib import Path
 import subprocess
+import psutil
 import os
 import signal
 import shutil
@@ -47,7 +48,9 @@ def kill_existing_instance():
         try:
             with open(PIDFILE, "r") as f:
                 pid = int(f.read().strip())
-            os.kill(pid, signal.SIGTERM)
+                print(psutil.Process(pid).cmdline())
+                if any("pydash" in cmdpart for cmdpart in psutil.Process(pid).cmdline()):
+                    os.kill(pid, signal.SIGTERM)
         except Exception as e:
             print(e)
         os.remove(PIDFILE)
