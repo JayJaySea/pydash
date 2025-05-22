@@ -6,6 +6,8 @@ pkgs.mkShell
         (python3.withPackages (ps: [ 
             ps.pyside6
             ps.pillow
+            ps.psutil
+            networkmanager
         ]))
     ];
 

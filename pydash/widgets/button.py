@@ -241,6 +241,7 @@ class IconButton(QPushButton):
 class ShutdownButton(IconButton):
     def __init__(self, size="medium", parent=None, id=None):
         super().__init__("shutdown", "red", size=size, parent=parent, id=id)
+        self.indicator.setIconSize(QSize(20, 20))
 
 class RebootButton(IconButton):
     def __init__(self, size="medium", parent=None, id=None):
