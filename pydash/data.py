@@ -1,6 +1,7 @@
 from pathlib import Path
 import subprocess
 import os
+import signal
 import shutil
 from pydash.scripts.color_icons import color_icons, parse_scss_variables, load_icons
 
@@ -46,9 +47,9 @@ def kill_existing_instance():
         try:
             with open(PIDFILE, "r") as f:
                 pid = int(f.read().strip())
-            os.kill(pid, signal.SIGTERM)  # Or SIGKILL if you're savage
-        except Exception:
-            pass  # If something goes wrong, assume the process is already dead
+            os.kill(pid, signal.SIGTERM)
+        except Exception as e:
+            print(e)
         os.remove(PIDFILE)
 
 def write_pid():
