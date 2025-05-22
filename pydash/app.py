@@ -11,6 +11,9 @@ import os
 
 def main():
     data.init()
+    data.kill_existing_instance()
+    data.write_pid()
+
     app = QApplication(argv)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

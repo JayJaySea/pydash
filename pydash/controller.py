@@ -49,10 +49,14 @@ class AwesomeWM(QObject):
         lua_code = f"require('awful').screen.focused().tags[{index}]:view_only()"
         subprocess.run(["awesome-client"], input=lua_code.encode())
         self.workspace_changed.emit(index)
+    
+    def refresh(self):
+        lua_code = f"awesome.restart()"
+        subprocess.run(["awesome-client"], input=lua_code.encode())
 
 class System():
-    def __init__(self):
-        pass
+    def reboot(self):
+        os.system("reboot")
 
-    def shutdown():
+    def shutdown(self):
         os.system("poweroff")

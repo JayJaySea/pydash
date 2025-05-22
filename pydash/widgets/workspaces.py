@@ -23,6 +23,7 @@ class Workspaces(QFrame):
         self.current_workspace = "1"
 
         self.initLayout()
+        self.workspaceChanged(self.current_workspace)
 
     def initLayout(self):
         layout = QVBoxLayout() if self.vertical else QHBoxLayout()

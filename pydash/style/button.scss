@@ -55,6 +55,16 @@
     color: $background;
 }
 
+#LabelButtonIndicator[color=purple] {
+    background-color: $purple;
+    color: $background;
+}
+
+#LabelButtonIndicator[color=blue] {
+    background-color: $blue;
+    color: $background;
+}
+
 #WorkspaceButtonIndicator {
     font-family: "Orbitron", Monospace, sans-serif;
     font-weight: normal;
@@ -102,4 +112,20 @@
 
 #IconButton[color=red] {
     border-color: $red;
+}
+
+#IconButton[color=yellow] {
+    border-color: $yellow;
+}
+
+#IconButton[color=blue] {
+    border-color: $blue;
+}
+
+#IconButton[color=purple] {
+    border-color: $purple;
+}
+
+#IconButton[color=green] {
+    border-color: $green;
 }

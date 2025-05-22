@@ -241,3 +241,11 @@ class IconButton(QPushButton):
 class ShutdownButton(IconButton):
     def __init__(self, size="medium", parent=None, id=None):
         super().__init__("shutdown", "red", size=size, parent=parent, id=id)
+
+class RebootButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("reboot", "yellow", size=size, parent=parent, id=id)
+
+class RefreshButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("refresh", "purple", size=size, parent=parent, id=id)

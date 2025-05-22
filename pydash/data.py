@@ -6,6 +6,7 @@ from pydash.scripts.color_icons import color_icons, parse_scss_variables, load_i
 
 DEBUG=os.getenv("DEBUG")
 DATA_DIR=os.path.join(Path.home(), ".local", "share", "pydash")
+PIDFILE = "/tmp/pydash.pid"
 
 if DEBUG:
     DATA_DIR=os.path.join(Path.cwd(), "data")
@@ -39,3 +40,17 @@ def init():
     output_dir = os.path.join(DATA_DIR, "icons")
 
     color_icons(icons, colors, recolor, output_dir)
+
+def kill_existing_instance():
+    if os.path.isfile(PIDFILE):
+        try:
+            with open(PIDFILE, "r") as f:
+                pid = int(f.read().strip())
+            os.kill(pid, signal.SIGTERM)  # Or SIGKILL if you're savage
+        except Exception:
+            pass  # If something goes wrong, assume the process is already dead
+        os.remove(PIDFILE)
+
+def write_pid():
+    with open(PIDFILE, "w") as f:
+        f.write(str(os.getpid()))
