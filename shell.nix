@@ -7,7 +7,6 @@ pkgs.mkShell
             ps.pyside6
             ps.pillow
             ps.psutil
-            networkmanager
         ]))
     ];
 
