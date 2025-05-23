@@ -104,7 +104,7 @@ class NetworkButton(IconButton):
                 "active":   QPixmap(os.path.join(DATA_DIR, "icons", "wifi_high-active.png"))
             }
         }
-        self.indicator.setIconSize(QSize(20, 20))
+        self.indicator.setIconSize(QSize(22, 22))
         
     def setDisconnected(self):
         self.icon_default = self.icons["disconnected"]["default"]
