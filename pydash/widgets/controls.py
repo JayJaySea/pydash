@@ -193,6 +193,7 @@ class AudioControl(QFrame):
 
     def changeVolume(self, value):
         self.system.setAudioVolume(value)
+        self.updateVolumeInfo(value, self.mute)
 
     def updateVolumeInfo(self, volume, mute):
         volume = max(0, volume)

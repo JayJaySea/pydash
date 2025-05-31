@@ -1,5 +1,6 @@
 import os
-from PySide6.QtCore import  QSize, Qt, QTime, QTimer
+from PySide6.QtMultimedia import QSoundEffect
+from PySide6.QtCore import  QSize, Qt, QTime, QTimer, QUrl
 from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtWidgets import (
     QLabel,
@@ -30,6 +31,10 @@ class Pomodoro(QFrame):
         self.timer.timeout.connect(self.updateTime)
         self.timer.start()
 
+        self.sound = QSoundEffect()
+        self.sound.setSource(QUrl.fromLocalFile(os.path.join(DATA_DIR, "sounds", "lofi-alarm-loud.wav")))
+        self.sound.setVolume(1.0)
+
         self.setObjectName("LabelButton")
         self.setFixedHeight(30)
         self.setFixedWidth(110)
@@ -59,6 +64,17 @@ class Pomodoro(QFrame):
 
         if self.time < 0:
             self.switchMode()
+            self.playAlarm()
+
+    def playAlarm(self):
+        self.sound.play()
+    
+        self.timer_button.activeStyle()
+        QTimer.singleShot(8600, self.resetTimerClock) 
+
+    def resetTimerClock(self):
+        if self.sound.isPlaying():
+            self.timer_button.defaultStyle()
 
     def switchMode(self):
         self.work = not self.work
@@ -77,7 +93,11 @@ class Pomodoro(QFrame):
         self.timer_button.setTime(self.time)
 
     def switchRunning(self):
-        self.running = not self.running
+        if self.sound.isPlaying():
+            self.sound.stop()
+            self.timer_button.defaultStyle()
+        else:
+            self.running = not self.running
 
     def refreshStyle(self):
         self.style().unpolish(self)

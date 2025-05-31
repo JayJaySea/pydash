@@ -1,16 +1,6 @@
 from setuptools import setup, find_packages
 import os
 
-def package_files(directories):
-    paths = []
-    for directory in directories:
-        for (path, _, filenames) in os.walk(directory):
-            for filename in filenames:
-                paths.append(os.path.join(path, filename))
-    return paths
-
-data_files = package_files(["pydash/fonts/", "pydash/icons/", "pydash/style/"])
-
 setup(
     name='PyDash',
     version='0.1.0',
@@ -24,6 +14,7 @@ setup(
             'fonts/*.ttf',
             'icons/*.png',
             'style/*.scss',
+            'sounds/*.wav'
         ],
     },
     include_package_data=True,

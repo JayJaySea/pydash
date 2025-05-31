@@ -25,6 +25,10 @@ def init():
     fonts_dest = os.path.join(DATA_DIR, "fonts")
     shutil.copytree(fonts_src, fonts_dest, dirs_exist_ok=True)
 
+    sounds_src = os.path.join(root_dir, "sounds")
+    sounds_dest = os.path.join(DATA_DIR, "sounds")
+    shutil.copytree(sounds_src, sounds_dest, dirs_exist_ok=True)
+
     style_src = os.path.join(root_dir, "style", "main.scss")
     style_dest = os.path.join(DATA_DIR, "style.css")
     command = ["sassc", style_src, style_dest]
