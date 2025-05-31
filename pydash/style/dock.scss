@@ -1,3 +1,30 @@
 #Dock {
     background-color: $background;
 }
+
+#BorderedContainer {
+    background-color: $background-dark;
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+}
+
+#BorderedContainer[color=red] {
+    border-color: $red;
+}
+
+#BorderedContainer[color=yellow] {
+    border-color: $yellow;
+}
+
+#BorderedContainer[color=blue] {
+    border-color: $blue;
+}
+
+#BorderedContainer[color=purple] {
+    border-color: $purple;
+}
+
+#BorderedContainer[color=green] {
+    border-color: $green;
+}

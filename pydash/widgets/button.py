@@ -21,6 +21,7 @@ class LabelButton(QFrame):
         self.setProperty("color", color)
 
         self.indicator = QLabel(label, self)
+        self.indicator.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.indicator.setAlignment(Qt.AlignCenter)
         self.indicator.setObjectName("LabelButtonIndicator")
         self.indicator.setProperty(font_size, True)

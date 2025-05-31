@@ -3,10 +3,11 @@
 pkgs.mkShell
 {
     nativeBuildInputs = with pkgs; [
-        (python3.withPackages (ps: [ 
+        (python312.withPackages (ps: [ 
             ps.pyside6
             ps.pillow
             ps.psutil
+            ps.pulsectl
         ]))
     ];
 

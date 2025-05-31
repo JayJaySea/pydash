@@ -1,6 +1,6 @@
 import os
 from PySide6.QtGui import QIcon, QPixmap
-from PySide6.QtCore import QTimer, QSize
+from PySide6.QtCore import QTimer, QSize, Qt
 from PySide6.QtWidgets import (
     QLabel,
     QHBoxLayout,
@@ -8,7 +8,8 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
     QStackedWidget,
-    QFrame
+    QFrame,
+    QSlider
 )
 
 from datetime import datetime
@@ -30,6 +31,12 @@ class Controls(QFrame):
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
+
+        self.audio = AudioControl()
+        layout.addWidget(self.audio)
+        separator = QWidget()
+        separator.setFixedSize(10, 30)
+        layout.addWidget(separator)
 
         self.network = NetworkButton()
         self.network.clicked.connect(self.launchNetworkManager)
@@ -104,7 +111,7 @@ class NetworkButton(IconButton):
                 "active":   QPixmap(os.path.join(DATA_DIR, "icons", "wifi_high-active.png"))
             }
         }
-        self.indicator.setIconSize(QSize(22, 22))
+        self.indicator.setIconSize(QSize(20, 20))
         
     def setDisconnected(self):
         self.icon_default = self.icons["disconnected"]["default"]
@@ -139,6 +146,148 @@ class NetworkButton(IconButton):
         self.icon_hover =   self.icons["wifi_high"]["hover"]
         self.icon_active =  self.icons["wifi_high"]["active"]
         self.setColor("blue")
+        self.updateIcon()
+
+    def updateIcon(self):
+        if self.active:
+            self.indicator.setIcon(self.icon_active)
+        elif self.hovering:
+            self.indicator.setIcon(self.icon_hover)
+        else:
+            self.indicator.setIcon(self.icon_default)
+
+    def setColor(self, color):
+        self.color = color
+        self.setProperty("color", color)
+        self.refreshStyle()
+
+class AudioControl(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.system = System()
+
+        self.current_volume = self.system.getCurrentAudioVolume()
+        self.mute = self.system.getAudioMute()
+
+        self.controller = AwesomeWM()
+        self.controller.audio_volume_changed.connect(lambda _: self.updateVolumeInfo(self.system.getCurrentAudioVolume(), self.mute))
+
+        self.setObjectName("BorderedContainer")
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(100)
+        self.slider.setFixedSize(70, 26)
+
+        self.slider.valueChanged.connect(self.changeVolume)
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 5, 0)
+        layout.setSpacing(2)
+        self.button = AudioButton()
+        self.button.clicked.connect(self.toggleMute)
+        layout.addWidget(self.button)
+        layout.addWidget(self.slider)
+
+        self.setLayout(layout)
+        self.updateVolumeInfo(self.current_volume, self.mute)
+
+    def changeVolume(self, value):
+        self.system.setAudioVolume(value)
+
+    def updateVolumeInfo(self, volume, mute):
+        volume = max(0, volume)
+        self.current_volume = min(100, volume)
+        self.mute = mute
+
+        self.slider.setValue(self.current_volume)
+
+        if self.mute:
+            self.button.setAudioMute()
+            self.setColor("red")
+            return
+        elif self.current_volume >= 66:
+            self.button.setAudioHigh()
+        elif self.current_volume >= 33:
+            self.button.setAudioMedium()
+        else:
+            self.button.setAudioLow()
+
+        self.setColor("green")
+
+    def toggleMute(self):
+        self.mute = not self.mute
+        self.system.setAudioMute(self.mute)
+        self.updateVolumeInfo(self.current_volume, self.mute)
+
+    def setColor(self, color):
+        self.color = color
+        self.slider.setProperty("color", color)
+        self.setProperty("color", color)
+        self.refreshStyle()
+
+    def refreshStyle(self):
+        self.slider.style().unpolish(self.slider)
+        self.slider.style().polish(self.slider)
+        self.slider.update()
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
+
+class AudioButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("audio_mute", "red", size=size, parent=parent, id=id)
+        self.setObjectName("BorderlessButton")
+        self.setFixedSize(26, 26)
+        self.icons = {
+            "audio_mute": {
+                "default": QPixmap(os.path.join(DATA_DIR, "icons", "audio_mute.png")),
+                "hover":  QPixmap(os.path.join(DATA_DIR, "icons", "audio_mute-hover.png")),
+                "active":   QPixmap(os.path.join(DATA_DIR, "icons", "audio_mute-active.png"))
+            },
+            "audio_low": {
+                "default": QPixmap(os.path.join(DATA_DIR, "icons", "audio_low.png")),
+                "hover":  QPixmap(os.path.join(DATA_DIR, "icons", "audio_low-hover.png")),
+                "active":   QPixmap(os.path.join(DATA_DIR, "icons", "audio_low-active.png")),
+            },
+            "audio_medium": {
+                "default": QPixmap(os.path.join(DATA_DIR, "icons", "audio_medium.png")),
+                "hover":  QPixmap(os.path.join(DATA_DIR, "icons", "audio_medium-hover.png")),
+                "active":   QPixmap(os.path.join(DATA_DIR, "icons", "audio_medium-active.png"))
+            },
+            "audio_high": {
+                "default": QPixmap(os.path.join(DATA_DIR, "icons", "audio_high.png")),
+                "hover":  QPixmap(os.path.join(DATA_DIR, "icons", "audio_high-hover.png")),
+                "active":   QPixmap(os.path.join(DATA_DIR, "icons", "audio_high-active.png"))
+            }
+        }
+        self.indicator.setIconSize(QSize(18, 18))
+        
+    def setAudioMute(self):
+        self.icon_default = self.icons["audio_mute"]["default"]
+        self.icon_hover =   self.icons["audio_mute"]["hover"]
+        self.icon_active =  self.icons["audio_mute"]["active"]
+        self.setColor("red")
+        self.updateIcon()
+
+    def setAudioLow(self):
+        self.icon_default = self.icons["audio_low"]["default"]
+        self.icon_hover =   self.icons["audio_low"]["hover"]
+        self.icon_active =  self.icons["audio_low"]["active"]
+        self.setColor("green")
+        self.updateIcon()
+
+    def setAudioMedium(self):
+        self.icon_default = self.icons["audio_medium"]["default"]
+        self.icon_hover =   self.icons["audio_medium"]["hover"]
+        self.icon_active =  self.icons["audio_medium"]["active"]
+        self.setColor("green")
+        self.updateIcon()
+
+    def setAudioHigh(self):
+        self.icon_default = self.icons["audio_high"]["default"]
+        self.icon_hover =   self.icons["audio_high"]["hover"]
+        self.icon_active =  self.icons["audio_high"]["active"]
+        self.setColor("green")
         self.updateIcon()
 
     def updateIcon(self):

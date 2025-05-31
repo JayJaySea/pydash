@@ -10,6 +10,14 @@
     border-color: $green;
 }
 
+#LabelButton[color=red] {
+    border-color: $red;
+}
+
+#LabelButton[color=blue] {
+    border-color: $blue;
+}
+
 #LabelButton[color=yellow] {
     border-color: $yellow;
 }
@@ -105,7 +113,7 @@
     border-style: solid;
     border-width: 2px;
     border-radius: 5px;
-    padding: 2px;
+    padding: 0px;
     background-repeat: no-repeat;
     background-position: center;
 }
@@ -128,4 +136,8 @@
 
 #IconButton[color=green] {
     border-color: $green;
+}
+
+#BorderlessButton {
+    padding: 0px;
 }
