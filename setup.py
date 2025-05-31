@@ -29,7 +29,8 @@ setup(
     include_package_data=True,
     install_requires=[
         'pyside6>=6.8.0.2',
-        'pillow>=11.0.0'
+        'pillow>=11.0.0',
+        'pulsectl'
     ],
     entry_points={
         'gui_scripts': [

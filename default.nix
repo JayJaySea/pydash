@@ -15,5 +15,6 @@ pkgs.python3Packages.buildPythonApplication {
     pyside6
     pillow
     psutil
+    pulsectl
   ];
 }
