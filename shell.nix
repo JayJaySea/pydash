@@ -8,6 +8,7 @@ pkgs.mkShell
             ps.pillow
             ps.psutil
             ps.pulsectl
+            ps.python-vlc
         ]))
     ];
 

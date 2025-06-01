@@ -16,5 +16,6 @@ pkgs.python3Packages.buildPythonApplication {
     pillow
     psutil
     pulsectl
+    python-vlc
   ];
 }

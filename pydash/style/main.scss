@@ -17,7 +17,7 @@ QStackedWidget {
 
 QSlider::groove:horizontal {
     margin-left: 3px;
-    margin-right: 3px;
+    margin-right: 5px;
     height: 2px;
     background-color: transparent;
 }
@@ -30,6 +30,10 @@ QSlider::sub-page:horizontal[color=green] {
     background-color: $green;
 }
 
+QSlider::sub-page:horizontal[color=purple] {
+    background-color: $purple;
+}
+
 QSlider::add-page:horizontal {
     background-color: $background-dark;
 }
@@ -38,9 +42,6 @@ QSlider::handle:horizontal {
     width: 8px;
     border-radius: 3px;
     margin: -3px;
-    // border-style: solid;
-    // border-width: 2px;
-    // border-radius: 5px;
 }
 
 
@@ -50,4 +51,8 @@ QSlider::handle:horizontal[color=red] {
 
 QSlider::handle:horizontal[color=green] {
     background-color: $green;
+}
+
+QSlider::handle:horizontal[color=purple] {
+    background-color: $purple;
 }

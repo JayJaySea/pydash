@@ -250,3 +250,83 @@ class RebootButton(IconButton):
 class RefreshButton(IconButton):
     def __init__(self, size="medium", parent=None, id=None):
         super().__init__("refresh", "purple", size=size, parent=parent, id=id)
+
+class FirefoxButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("firefox", "yellow", size=size, parent=parent, id=id)
+
+class MailButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("mail", "blue", size=size, parent=parent, id=id)
+        self.indicator.setIconSize(QSize(20, 20))
+
+class TeamsButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("teams", "purple", size=size, parent=parent, id=id)
+        self.indicator.setIconSize(QSize(20, 20))
+
+class RobotButton(IconButton):
+    def __init__(self, size="medium", parent=None, id=None):
+        super().__init__("robot", "green", size=size, parent=parent, id=id)
+        self.indicator.setIconSize(QSize(20, 20))
+
+class IconStateButton(IconButton):
+    clicked_left = Signal()
+    clicked_right = Signal()
+
+    def __init__(self, icon_name, color, size="medium", parent=None, id=None):
+        super().__init__(icon_name, color, size, parent, id)
+
+        self.active = False
+
+    def enterEvent(self, event):
+        self.setCursor(Qt.PointingHandCursor)
+        if not self.active:
+            self.hoverStyle()
+
+    def mouseMoveEvent(self, event):
+        pass
+
+    def leaveEvent(self, event):
+        if not self.active:
+            self.defaultStyle()
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.active = not self.active
+            if self.active:
+                self.activeStyle()
+            else:
+                self.defaultStyle()
+            self.clicked_left.emit()
+        elif event.button() == Qt.MouseButton.RightButton:
+            self.clicked_right.emit()
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+    def setInactive(self):
+        self.active = False
+        self.defaultStyle()
+
+    def setActive(self):
+        self.active = True
+        self.activeStyle()
+
+class MusicButton(IconStateButton):
+    def __init__(self, size="medium", parent=None):
+        super().__init__("note", "purple", size, parent)
+
+class KaliButton(IconStateButton):
+    def __init__(self, size="medium", parent=None):
+        super().__init__("kali", "yellow", size, parent)
+
+class WindowsButton(IconStateButton):
+    def __init__(self, size="medium", parent=None):
+        super().__init__("windows", "blue", size, parent)
+        self.indicator.setIconSize(QSize(16, 16))
+
+class BugButton(IconStateButton):
+    def __init__(self, size="medium", parent=None):
+        super().__init__("bug", "red", size, parent)
+        #self.indicator.setIconSize(QSize(16, 16))

@@ -22,6 +22,7 @@ setup(
         'pyside6>=6.8.0.2',
         'pillow>=11.0.0',
         'pulsectl'
+        'python-vlc'
     ],
     entry_points={
         'gui_scripts': [

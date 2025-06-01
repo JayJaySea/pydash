@@ -14,6 +14,8 @@ from pydash.widgets.workspaces import Workspaces
 from pydash.widgets.pomodoro import Pomodoro
 from pydash.widgets.clock import Clock
 from pydash.widgets.controls import Controls
+from pydash.widgets.button import MusicButton, KaliButton, WindowsButton, BugButton
+from pydash.controller import LofiPlayer
 
 class Dock(QMainWindow):
     def __init__(self, geometry):
@@ -45,15 +47,36 @@ class Dock(QMainWindow):
 class LeftSide(QFrame):
     def __init__(self):
         super().__init__()
+        self.player = LofiPlayer()
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
 
         layout.addWidget(Workspaces(10))
+
         separator = QWidget()
         separator.setFixedSize(10, 30)
         layout.addWidget(separator)
+
         layout.addWidget(Pomodoro(1500, 300))
+
+        separator = QWidget()
+        separator.setFixedSize(10, 30)
+        layout.addWidget(separator)
         
+        self.music = MusicButton()
+        self.music.clicked_left.connect(self.player.togglePlaying)
+        self.music.clicked_right.connect(self.player.nextTrack)
+        layout.addWidget(self.music)
+
+        self.kali = KaliButton()
+        layout.addWidget(self.kali)
+
+        self.windows = WindowsButton()
+        layout.addWidget(self.windows)
+
+        self.malware = BugButton()
+        layout.addWidget(self.malware)
+
         self.setLayout(layout)

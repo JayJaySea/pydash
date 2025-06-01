@@ -1,11 +1,14 @@
 import os
+import vlc
 import sys
+import random
 import socket
 import subprocess
 import psutil
 import pulsectl
 from PySide6.QtCore import QSocketNotifier, QIODevice, Signal, QObject, QTimer
 from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from pydash.data import DATA_DIR, MUSIC_DIR
 
 class AwesomeWM(QObject):
     workspace_changed = Signal(str)
@@ -127,22 +130,117 @@ class System(QObject):
                     return int(signal)
         except Exception:
             pass
-        return None
+        return 0
 
     def getCurrentAudioVolume(self):
-        sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
-        return int(sink.volume.value_flat * 100)
+        sink = self.getDefaultSink()
+        if sink:
+            return int(sink.volume.value_flat * 100)
+        
+        return None
 
     def setAudioVolume(self, value):
-        sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
-        self.pulse.volume_set_all_chans(sink, value/100)
+        sink = self.getDefaultSink()
+        if sink:
+            self.pulse.volume_set_all_chans(sink, value/100)
 
     def getAudioMute(self):
-        sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
-        return sink.mute
+        sink = self.getDefaultSink()
+        if sink:
+            return sink.mute
+        
+        return None
 
     def setAudioMute(self, mute):
-        sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
-        self.pulse.mute(sink, mute)
+        sink = self.getDefaultSink()
+        if sink:
+            self.pulse.mute(sink, mute)
 
+    def getDefaultSink(self):
+        try:
+            sink = self.pulse.get_sink_by_name(self.pulse.server_info().default_sink_name)
+            return sink
+        except BaseException:
+            return None
 
+    def getCurrentMicrophoneVolume(self):
+        source = self.getDefaultSource()
+        if source:
+            return int(source.volume.value_flat * 100)
+        
+        return None
+
+    def setMicrophoneVolume(self, value):
+        source = self.getDefaultSource()
+        if source:
+            self.pulse.volume_set_all_chans(source, value/100)
+
+    def getMicrophoneMute(self):
+        source = self.getDefaultSource()
+        if source:
+            return source.mute
+
+        return None
+
+    def setMicrophoneMute(self, mute):
+        source = self.getDefaultSource()
+        if source:
+            self.pulse.mute(source, mute)
+
+    def getDefaultSource(self):
+        try:
+            source = self.pulse.get_source_by_name(self.pulse.server_info().default_source_name)
+            return source
+        except BaseException:
+            return None
+
+    def launchFirefox(self):
+        subprocess.Popen("firefox")
+
+    def launchThunderbird(self):
+        subprocess.Popen("thunderbird")
+
+    def launchTeams(self):
+        subprocess.Popen("teams-for-linux")
+
+    def launchCryptomator(self):
+        subprocess.Popen("cryptomator")
+
+class LofiPlayer(QObject):
+    track_end = Signal()
+
+    def __init__(self):
+        super().__init__()
+        self.instance = vlc.Instance()
+        self.tracks = [f for f in os.listdir(MUSIC_DIR) if f.endswith(('.mp3', '.wav', '.ogg'))]
+        self.track_end.connect(self.nextTrack)
+        self.player = self.instance.media_player_new()
+        self.playing = False
+        self.event_manager = self.player.event_manager()
+        self.event_manager.event_attach(vlc.EventType.MediaPlayerEndReached, lambda _: self.track_end.emit())
+
+        self.player.set_media(self.selectRandom())
+        self.preloaded = self.selectRandom()
+
+    def selectRandom(self):
+        if not self.tracks:
+            return
+
+        track = os.path.join(MUSIC_DIR, random.choice(self.tracks))
+        media = self.instance.media_new(track)
+        return media
+
+    def togglePlaying(self):
+        if self.player.is_playing():
+            self.player.pause()
+            self.playing = False
+        else:
+            self.player.play()
+            self.playing = True
+
+    def nextTrack(self):
+        self.player.set_media(self.preloaded)
+        if self.playing:
+            self.player.play()
+
+        self.preloaded = self.selectRandom()

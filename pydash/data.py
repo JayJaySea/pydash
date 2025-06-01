@@ -9,6 +9,7 @@ from pydash.scripts.color_icons import color_icons, parse_scss_variables, load_i
 DEBUG=os.getenv("DEBUG")
 DATA_DIR=os.path.join(Path.home(), ".local", "share", "pydash")
 PIDFILE = "/tmp/pydash.pid"
+MUSIC_DIR = os.path.join(Path.home(), "music", "lofi")
 
 if DEBUG:
     DATA_DIR=os.path.join(Path.cwd(), "data")
