@@ -1,5 +1,5 @@
 from PySide6 import QtGui
-from PySide6.QtCore import QSize, Qt, QPoint, Signal, QEvent
+from PySide6.QtCore import QSize, Qt, QPoint, Signal, QEvent, QTimer
 from PySide6.QtGui import QPixmap, QColor
 from PySide6.QtWidgets import QPushButton, QStyleOption, QStyle, QFrame, QLabel, QHBoxLayout
 import os
@@ -278,8 +278,14 @@ class IconStateButton(IconButton):
         super().__init__(icon_name, color, size, parent, id)
 
         self.active = False
+        self.blinking = False
+        self.should_active = False
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.toggleState)
 
     def enterEvent(self, event):
+        if self.blinking:
+            return
         self.setCursor(Qt.PointingHandCursor)
         if not self.active:
             self.hoverStyle()
@@ -288,10 +294,14 @@ class IconStateButton(IconButton):
         pass
 
     def leaveEvent(self, event):
+        if self.blinking:
+            return
         if not self.active:
             self.defaultStyle()
 
     def mousePressEvent(self, event):
+        if self.blinking:
+            return
         if event.button() == Qt.MouseButton.LeftButton:
             self.active = not self.active
             if self.active:
@@ -305,6 +315,17 @@ class IconStateButton(IconButton):
     def mouseReleaseEvent(self, event):
         pass
 
+    def toggleState(self):
+        self.active = not self.active
+
+        if not self.blinking and self.active == self.should_active:
+            self.timer.stop()
+
+        if self.active:
+            self.setActive()
+        else:
+            self.setInactive()
+
     def setInactive(self):
         self.active = False
         self.defaultStyle()
@@ -312,6 +333,15 @@ class IconStateButton(IconButton):
     def setActive(self):
         self.active = True
         self.activeStyle()
+
+    def startBlinking(self, should_active):
+        self.should_active = should_active
+        self.blinking = True
+        if not self.timer.isActive():
+            self.timer.start(500)
+
+    def stopBlinking(self):
+        self.blinking = False
 
 class MusicButton(IconStateButton):
     def __init__(self, size="medium", parent=None):

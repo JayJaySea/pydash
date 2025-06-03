@@ -6,9 +6,12 @@ import socket
 import subprocess
 import psutil
 import pulsectl
-from PySide6.QtCore import QSocketNotifier, QIODevice, Signal, QObject, QTimer
+import json
+from concurrent.futures import ThreadPoolExecutor
+from PySide6.QtCore import QSocketNotifier, QIODevice, Signal, QObject, QTimer, QRunnable, QThreadPool
+from PySide6.QtConcurrent import QtConcurrent
 from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
-from pydash.data import DATA_DIR, MUSIC_DIR
+from pydash.data import DATA_DIR, MUSIC_DIR, VMS_DATA, VM_KEY
 
 class AwesomeWM(QObject):
     workspace_changed = Signal(str)
@@ -244,3 +247,113 @@ class LofiPlayer(QObject):
             self.player.play()
 
         self.preloaded = self.selectRandom()
+
+class VMController(QObject):
+    update_alive = Signal(set, set)
+
+    def __init__(self):
+        super().__init__()
+        self.data = None
+        with open(VMS_DATA) as vms_file:
+            self.data = json.load(vms_file)
+
+        if not self.data:
+            return
+
+        self.executor = ThreadPoolExecutor()
+        self.alive = set()
+        self.prev_alive = set()
+
+        self.timers = {}
+        self.futures = []
+
+        self.initAliveCheck()
+
+    def initAliveCheck(self):
+        for vm_name in self.data.get("vms"):
+            vm = self.data["vms"][vm_name]
+
+            self.startVMCheck(vm)
+            self.timers[vm_name] = QTimer()
+            self.timers[vm_name].timeout.connect(lambda vm=vm: self.startVMCheck(vm))
+            self.timers[vm_name].start(30000)
+
+    def targetedAliveCheck(self, vm_name):
+        vm = self.data["vms"][vm_name]
+
+        if not self.timers.get(vm_name):
+            return
+
+        self.timers[vm_name].stop()
+        self.timers[vm_name].start(1000)
+
+    def stopTargetedCheck(self, vm_name):
+        self.timers[vm_name].stop()
+        self.timers[vm_name].start(30000)
+
+    def startVMCheck(self, vm, targeted=False):
+        future = self.executor.submit(self.checkVMState, vm)
+        future.add_done_callback(lambda future: self.updateVMState(future))
+
+        self.futures.append(future) 
+
+    def checkVMState(self, vm, targeted=False):
+        error = subprocess.run(['ssh', '-i', VM_KEY,'-q', '-o', 'ConnectTimeout=1',  f"{vm['ssh_username']}@{vm['ip']}", 'echo ready'], capture_output=True).returncode
+
+        if error:
+            return (vm["vm_name"], False, targeted)
+
+        return (vm["vm_name"], True, targeted)
+
+    def updateVMState(self, future):
+        vm_name, state, targeted = future.result()
+        if not targeted:
+            self.prev_alive = self.alive.copy()
+        if state:
+            self.alive.add(vm_name)
+        else:
+            self.alive.discard(vm_name)
+
+        if self.alive.difference(self.prev_alive) or self.prev_alive.difference(self.alive):
+            self.update_alive.emit(self.alive, self.prev_alive)
+
+        self.futures.remove(future)
+
+    def toggleVM(self, vm_name):
+        if any(vm_name in alive_vm for alive_vm in self.alive):
+            self.poweroff(vm_name)
+        else:
+            self.launch(vm_name)
+
+    def launch(self, vm_name):
+        vm = self.data["vms"][vm_name]
+
+        command = self.data["commands"]["launch"] if not vm.get("commands", {}).get("launch") else vm["commands"]["launch"]
+        command = command.format(
+            vm_name=vm["vm_name"]
+        )
+        subprocess.run(command, shell=True).returncode
+
+    def poweroff(self, vm_name):
+        vm = self.data["vms"][vm_name]
+        command = self.data["commands"]["poweroff"] if not vm.get("commands", {}).get("poweroff") else vm["commands"]["poweroff"]
+        command = command.format(
+            vm_name=vm["vm_name"]
+        )
+        subprocess.run(command, shell=True).returncode
+
+    def getVms(self):
+        if not self.data:
+            return None
+        
+        vms = []
+        for vm_name in self.data.get("vms"):
+            vms.append(vm_name)
+
+        return vms
+
+    def isAlive(self, vm_name):
+        if any(vm_name in alive_vm for alive_vm in self.alive):
+            return True
+        return False
+

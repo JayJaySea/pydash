@@ -10,6 +10,8 @@ DEBUG=os.getenv("DEBUG")
 DATA_DIR=os.path.join(Path.home(), ".local", "share", "pydash")
 PIDFILE = "/tmp/pydash.pid"
 MUSIC_DIR = os.path.join(Path.home(), "music", "lofi")
+VMS_DATA = os.path.join(Path.home(), ".local", "share", "vms.json")
+VM_KEY = os.path.join(Path.home(), ".ssh", "kali")
 
 if DEBUG:
     DATA_DIR=os.path.join(Path.cwd(), "data")
