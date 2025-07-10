@@ -35,14 +35,26 @@ class Dock(QMainWindow):
         self.layout.setColumnStretch(2, 1)
 
         self.layout.addWidget(LeftSide(), 0, 0, alignment=Qt.AlignLeft)
-        self.clock = Clock("yellow")
-        self.layout.addWidget(self.clock, 0, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(Center(), 0, 1, alignment=Qt.AlignCenter)
         self.layout.addWidget(Controls(), 0, 2, alignment=Qt.AlignRight)
 
         self.central = QWidget()
         self.central.setLayout(self.layout)
 
         self.setCentralWidget(self.central)
+
+class Center(QFrame):
+    def __init__(self):
+        super().__init__()
+
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
+
+        self.clock = Clock("yellow")
+        layout.addWidget(self.clock)
+
+        self.setLayout(layout)
 
 class LeftSide(QFrame):
     def __init__(self):

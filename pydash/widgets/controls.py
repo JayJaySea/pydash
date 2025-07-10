@@ -347,15 +347,16 @@ class MicrophoneControl(QFrame):
         super().__init__(parent)
         self.system = System()
 
-        self.current_volume = self.system.getCurrentMicrophoneVolume()
-        self.mute = self.system.getMicrophoneMute()
+        self.microphone_timer = QTimer()
+        self.microphone_timer.timeout.connect(self.getFirstMicrophoneVolume)
+        self.microphone_timer.start(250)
 
         self.setObjectName("BorderedContainer")
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(0)
         self.slider.setMaximum(100)
         self.slider.setFixedSize(70, 26)
-        self.slider.setValue(self.current_volume)
+        self.slider.setValue(0)
         self.slider.valueChanged.connect(self.changeVolume)
 
         layout = QHBoxLayout()
@@ -367,7 +368,17 @@ class MicrophoneControl(QFrame):
         layout.addWidget(self.slider)
 
         self.setLayout(layout)
-        self.updateVolumeInfo(self.current_volume, self.mute)
+
+    def getFirstMicrophoneVolume(self):
+        volume = self.system.getCurrentMicrophoneVolume()
+        mute = self.system.getMicrophoneMute()
+
+        if volume is not None and mute is not None:
+            self.current_volume = volume
+            self.mute = mute
+            self.updateVolumeInfo(self.current_volume, self.mute)
+
+            self.microphone_timer.stop()
 
     def changeVolume(self, value):
         self.system.setMicrophoneVolume(value)
