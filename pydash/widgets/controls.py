@@ -376,6 +376,7 @@ class MicrophoneControl(QFrame):
         if volume is not None and mute is not None:
             self.current_volume = volume
             self.mute = mute
+            self.slider.setValue(self.current_volume)
             self.updateVolumeInfo(self.current_volume, self.mute)
 
             self.microphone_timer.stop()
