@@ -92,10 +92,8 @@ class System(QObject):
         super().__init__()
 
         self.pulse = pulsectl.Pulse('volume-control')
+        self.pollConnectionCheck()
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.updateConnectionStatus)
-        self.timer.start(1000)
 
     def reboot(self):
         os.system("reboot")
@@ -103,27 +101,46 @@ class System(QObject):
     def shutdown(self):
         os.system("poweroff")
 
-    def updateConnectionStatus(self):
-        connection = {
-            "status": self.getConnectionStatus()
-        }
-        if connection["status"] == "wifi":
-            connection["strength"] = self.getWifiStrength()
+    def pollConnectionCheck(self):
+        self.executor = ThreadPoolExecutor()
+        self.futures = []
 
-        self.connection_status.emit(connection)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.connectionCheck)
+        self.timer.start(1000)
+
+    def connectionCheck(self):
+        future = self.executor.submit(self.getConnectionStatus)
+        self.futures.append(future) 
+
+        future.add_done_callback(lambda future: self.updateConnectionStatus(future))
 
     def getConnectionStatus(self):
         wired_patterns = ['eth', 'en', 'lan', 'ethernet', 'em']
         wireless_patterns = ['wlan', 'wifi', 'wl', 'wireless', 'wi-fi', 'airport']
 
+        connection = {
+            "status": "disconnected"
+        }
         for iface, stats in psutil.net_if_stats().items():
             if stats.isup:
                 if any(pattern in iface.lower() for pattern in wired_patterns):
-                    return "wired"
-                if any(pattern in iface.lower() for pattern in wireless_patterns):
-                    return "wifi"
-        return "disconnected"
+                    connection["status"] = "wired"
+                    break
+                elif any(pattern in iface.lower() for pattern in wireless_patterns):
+                    connection["status"] = "wifi"
+                    break
+
+        if connection["status"] == "wifi":
+            connection["strength"] = self.getWifiStrength()
+
+        return connection
     
+    def updateConnectionStatus(self, future):
+        self.connection_status.emit(future.result())
+
+        self.futures.remove(future)
+
     def getWifiStrength(self):
         try:
             output = subprocess.check_output(["nmcli", "-t", "-f", "ACTIVE,SIGNAL", "dev", "wifi"]).decode()
